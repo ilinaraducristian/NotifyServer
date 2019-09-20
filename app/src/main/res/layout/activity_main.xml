@@ -7,32 +7,25 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/refreshButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:text="Refresh"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+      android:id="@+id/startServerButton"
+      android:layout_marginTop="50dp"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="start server"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      android:onClick="startBluetoothService" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/pairedDevicesList"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_marginTop="50dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/refreshButton" />
-
-    <!--    <ListView-->
-<!--        android:id="@+id/pairedDevicesList"-->
-<!--        android:layout_width="300dp"-->
-<!--        android:layout_height="300dp"-->
-<!--        android:layout_marginTop="50dp"-->
-
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/button" />-->
+    <Button
+      android:id="@+id/stopServerButton"
+      android:layout_marginTop="30dp"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="stop server"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/startServerButton"
+      android:onClick="stopBluetoothService" />
 
 </android.support.constraint.ConstraintLayout>

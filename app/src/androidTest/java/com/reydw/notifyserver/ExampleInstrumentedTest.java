@@ -1,4 +1,4 @@
-package com.example.notifyserver;
+package com.reydw.notifyserver;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

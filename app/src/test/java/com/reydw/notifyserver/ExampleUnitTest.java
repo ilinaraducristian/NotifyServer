@@ -1,4 +1,4 @@
-package com.example.notifyserver;
+package com.reydw.notifyserver;
 
 import org.junit.Test;
 
