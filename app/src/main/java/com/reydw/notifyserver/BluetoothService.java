@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -13,9 +14,9 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.reydw.notifyserver.actions.NotificationAction;
+
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.UUID;
 
 
 public class BluetoothService extends Service {
@@ -25,7 +26,7 @@ public class BluetoothService extends Service {
   private NotificationManagerCompat notificationManager;
   private NotificationCompat.Builder notificationBuilder;
   private BluetoothServer bluetoothServer;
-  private boolean hasActiveConnection = false;
+  private NotificationBroadcastReceiver notificationBroadcastReceiver;
 
   @Nullable
   @Override
@@ -46,6 +47,9 @@ public class BluetoothService extends Service {
       .setContentText("Service running")
       .setContentIntent(mainActivityPendingIntent)
       .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+    notificationBroadcastReceiver = new NotificationBroadcastReceiver();
+
     try {
       bluetoothServer = new BluetoothServer(){
 
@@ -57,13 +61,11 @@ public class BluetoothService extends Service {
         @Override
         public void onClientConnected(String clientName) {
           updateNotification(clientName + " connected");
-          hasActiveConnection = true;
         }
 
         @Override
         public void onClientDisconnected() {
           updateNotification("Client disconnected");
-          hasActiveConnection = false;
         }
       };
     }catch(IOException e) {
@@ -78,6 +80,7 @@ public class BluetoothService extends Service {
       Toast.makeText(this, "Could not start server", Toast.LENGTH_SHORT).show();
     }else {
       bluetoothServer.start();
+      registerReceiver(notificationBroadcastReceiver, new IntentFilter("com.reydw.notifyserver.FOO"));
       startForeground(1, notificationBuilder.build());
     }
     return super.onStartCommand(intent, flags, startId);
@@ -87,6 +90,7 @@ public class BluetoothService extends Service {
   public void onDestroy() {
     // stop bluetooth server
     bluetoothServer.close();
+    unregisterReceiver(notificationBroadcastReceiver);
     stopForeground(true);
     stopSelf();
   }
@@ -97,50 +101,15 @@ public class BluetoothService extends Service {
     notificationManager.notify(1, notificationBuilder.build());
   }
 
-  static class NotificationBroadcastReceiver extends BroadcastReceiver {
+  class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     @SuppressWarnings({"all"})
     public void onReceive(Context context, Intent intent) {
-      Log.i(TAG, "onReceive: ");
       Bundle notification = intent.getExtras();
-      //noinspection SpellCheckingInspection
-      String appname = notification.get("appname").toString();
-      String title = notification.get("title").toString();
-      String text = notification.get("text").toString();
-      String subtext = notification.get("subtext").toString();
-      NotificationForClient notificationForClient = new NotificationForClient(appname, title, text, subtext);
-      Log.i(TAG, notificationForClient.toString());
-      if(!hasActiveConnection) return;
-      bluetoothServer.sendMessage(notificationForClient);
-    }
-  }
-
-  @SuppressWarnings({"unused", "SpellCheckingInspection", "FieldCanBeLocal"})
-  class NotificationForClient implements Serializable{
-
-    private static final long serialVersionUID = 69;
-
-    private final String appname;
-    private final String title;
-    private final String text;
-    private final String subtext;
-
-    NotificationForClient(String appname, String title, String text, String subtext) {
-      this.appname = appname;
-      this.title = title;
-      this.text = text;
-      this.subtext = subtext;
-    }
-
-    @Override
-    public String toString() {
-      return "NotificationForClient{" +
-        "appname='" + appname + '\'' +
-        ", title='" + title + '\'' +
-        ", text='" + text + '\'' +
-        ", subtext='" + subtext + '\'' +
-        '}';
+      NotificationAction notificationAction = new NotificationAction(notification);
+      Log.i(TAG, notificationAction.toString());
+      bluetoothServer.sendAction(notificationAction);
     }
   }
 

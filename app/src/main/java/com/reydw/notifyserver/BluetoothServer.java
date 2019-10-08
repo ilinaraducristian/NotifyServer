@@ -3,14 +3,14 @@ package com.reydw.notifyserver;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.os.Parcel;
 import android.os.Process;
 import android.util.Log;
 
-import java.io.ByteArrayOutputStream;
+import com.reydw.notifyserver.actions.NotificationAction;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
@@ -30,6 +30,7 @@ public abstract class BluetoothServer extends Thread {
   public void run() {
     Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
     BluetoothSocket socket = null;
+    InputStream is;
     Log.i(TAG, "Server started");
     while (true) {
       try {
@@ -38,16 +39,22 @@ public abstract class BluetoothServer extends Thread {
         break;
       }
       if (socket == null) continue;
+      try{
+        is = socket.getInputStream();
+        os = socket.getOutputStream();
+      }catch(IOException e) {
+        continue;
+      }
       Log.i(TAG, "Connection established");
       onClientConnected(socket.getRemoteDevice().getName());
       while(true) {
         byte[] bytes = new byte[MESSAGE_SIZE];
         try {
-          InputStream is = socket.getInputStream();
           is.read(bytes);
           onMessageReceived(bytes);
         } catch (IOException e) {
           onClientDisconnected();
+          os = null;
           break;
         }
       }
@@ -68,32 +75,40 @@ public abstract class BluetoothServer extends Thread {
     }
   }
 
-  boolean sendMessage(byte[] bytes){
+  boolean sendAction(byte[] bytes){
     if(os == null) return false;
     try {
+//      for (byte b : bytes) {
+//        String st = String.format("%02X", b);
+//        Log.i(TAG + "plm", st);
+//      }
+//      Log.i(TAG + "plm", "size " + bytes.length);
       os.write(bytes);
     } catch (IOException e) {
-      Log.e(TAG, "BluetoothServer sendMessage()", e);
+      Log.e(TAG, "BluetoothServer sendAction()", e);
       return false;
     }
     return true;
   }
 
-  boolean sendMessage(Object object) {
+  boolean sendAction(NotificationAction action) {
     if(os == null) return false;
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    try {
-      ObjectOutput tmpos = new ObjectOutputStream(byteArrayOutputStream);
-      tmpos.writeObject(object);
-      tmpos.flush();
-      byte[] b = byteArrayOutputStream.toByteArray();
-      Log.i(TAG, "Message size: " + b.length);
-      sendMessage(b);
-    } catch (IOException e) {
-      Log.e(TAG, "BluetoothServer sendMessage()", e);
-      return false;
-    }
-    return true;
+//    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//    try {
+//      ObjectOutput tmpos = new ObjectOutputStream(byteArrayOutputStream);
+//      tmpos.writeObject(action);
+//      tmpos.flush();
+//      byte[] bytes = byteArrayOutputStream.toByteArray();
+//      sendAction(bytes);
+//    } catch (IOException e) {
+//      Log.e(TAG, "BluetoothServer sendAction()", e);
+//      return false;
+//    }
+    Parcel parcel = Parcel.obtain();
+    action.writeToParcel(parcel, 0);
+    byte[] bytes = parcel.marshall();
+    parcel.recycle();
+    return sendAction(bytes);
   }
 
 }

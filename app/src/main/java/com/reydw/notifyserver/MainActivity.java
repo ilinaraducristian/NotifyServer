@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,10 +15,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.reydw.notifyserver.actions.NotificationAction;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+
 public class MainActivity extends AppCompatActivity {
 
   public static final int BLUETOOTH_REQUEST_CODE = 1;
-  public static final String TAG = "NotifyServiceDebuggingTAG";
+  public static final String TAG = "NotifyDebuggingTAG";
   private Intent bluetoothServiceIntent;
   private BluetoothAdapter adapter;
   private Button startServerButton;
@@ -33,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     startServerButton = findViewById(R.id.startServerButton);
     stopServerButton = findViewById(R.id.stopServerButton);
     bluetoothServiceIntent = new Intent(this, BluetoothService.class);
-    disableUIButtons();
+//    disableUIButtons();
 
     bluetoothStateChangeBroadcastReceiver = new BluetoothStateChangeBroadcastReceiver();
     registerReceiver(bluetoothStateChangeBroadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
@@ -53,6 +64,18 @@ public class MainActivity extends AppCompatActivity {
 
   public void startBluetoothService(View view) {
     startService(bluetoothServiceIntent);
+//    NotificationAction n = new NotificationAction("a", "b", "c", "d");
+//    Parcel parcel = Parcel.obtain();
+//    n.writeToParcel(parcel, 0);
+//    byte[] bytes = parcel.marshall();
+//    parcel.recycle();
+//    parcel.unmarshall(bytes, 0, bytes.length);
+//    parcel.setDataPosition(0);
+//
+//    NotificationAction n2 = NotificationAction.CREATOR.createFromParcel(parcel);
+//    parcel.recycle();
+//    Log.i(TAG, n2.toString());
+
   }
 
   public void stopBluetoothService(View view) {

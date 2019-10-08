@@ -10,7 +10,6 @@ public class NotificationListener extends NotificationListenerService {
 
   private static final String TAG = MainActivity.TAG;
 
-
   @Override
   public void onListenerConnected() {
     Log.i(TAG, "onListenerConnected");
@@ -23,32 +22,32 @@ public class NotificationListener extends NotificationListenerService {
 
   @Override
   public void onNotificationPosted(StatusBarNotification sbn) {
-    Log.i(TAG, "onNotificationPosted: beforecheck");
     String packageName = sbn.getPackageName();
     Notification notification = sbn.getNotification();
     String notificationTitle = notification.extras.getString("android.title");
     String notificationText = notification.extras.getString("android.text");
     String notificationSubtext = notification.extras.getString("android.subtext");
 
+    Intent notificationIntent = new Intent("com.reydw.notifyserver.NOTIFICATION_RECEIVED");
     switch (packageName) {
       //noinspection SpellCheckingInspection
       case "com.samsung.android.messaging":
+        notificationIntent.putExtra("appname", "Messaging");
+        notificationIntent.putExtra("title", notificationTitle);
+        notificationIntent.putExtra("text", notificationText);
+        notificationIntent.putExtra("subtext", notificationSubtext);
+        sendBroadcast(notificationIntent);
+        break;
       //noinspection SpellCheckingInspection
       case "com.whatsapp":
-        Intent notificationIntent = new Intent(this, BluetoothService.NotificationBroadcastReceiver.class);
         //noinspection SpellCheckingInspection
         notificationIntent.putExtra("appname", "WhatsApp");
         notificationIntent.putExtra("title", notificationTitle);
         notificationIntent.putExtra("text", notificationText);
         notificationIntent.putExtra("subtext", notificationSubtext);
         sendBroadcast(notificationIntent);
-        Log.i(TAG, "onNotificationPosted: ");
         break;
     }
   }
 
-  @Override
-  public void onNotificationRemoved(StatusBarNotification sbn) {
-//    Log.i(TAG, String.format("%s", sbn.getPackageName()));
-  }
 }

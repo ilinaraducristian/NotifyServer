@@ -28,7 +28,6 @@
             </intent-filter>
         </service>
         <service android:name=".BluetoothService" />
-        <receiver android:name=".BluetoothService$NotificationBroadcastReceiver" android:exported="true"/>
     </application>
 
 </manifest>
