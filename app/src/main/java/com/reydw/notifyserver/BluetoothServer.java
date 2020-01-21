@@ -1,6 +1,7 @@
 package com.reydw.notifyserver;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.os.Parcel;
@@ -25,6 +26,8 @@ public abstract class BluetoothServer extends Thread {
   BluetoothServer() throws IOException{
     BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     bluetoothServerSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord("NotifyServer", UUID.fromString(MainActivity.BLUETOOTH_UUID));
+    BluetoothDevice dev = bluetoothAdapter.getRemoteDevice(bluetoothAdapter.getAddress());
+//    dev.
   }
 
   public void run() {
